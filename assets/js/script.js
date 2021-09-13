@@ -30,13 +30,34 @@ async function postForm(e) {
     // convert response to json
     const data = await response.json();
 
-    // if ok is true then log to console, otherwise throw Error
+    // if ok is true then call display errors (results), otherwise throw Error
     if(response.ok) {
-        console.log(data);
+        displayErrors(data);
     } else {
         throw new Error(data.error);
     }
+}
 
+function displayErrors(data) {
+    let heading = `JSHint Results for ${data.file}`;
+    let results = "";
+
+    if(data.total_errors === 0) {
+        results = `<div>No errors reported!</div>`;
+    } else {
+        results = `<div>Total Errors: <span class="error-count">${data.total_errors}</span></div>`;
+        for (let error of data.error_list) {
+            results += `<div>At line: <span class="line">${error.line}</span>, `;
+            results += `column <span class="column">${error.col}:</span></div>`;
+            results += `<div class="error">${error.error}</div>`;
+        }
+    }
+
+    // add the content to the heading and content sections of modal
+    document.getElementById("resultsModalTitle").textContent = heading;
+    document.getElementById("results-content").innerHTML = results;
+    //Bootstrap modal function
+    resultsModal.show();
 }
 
 // GET request to API_URL with API_KEY, pass the results to function that will display them
@@ -65,7 +86,7 @@ async function getStatus(e) {
 
 function displayStatus(data) {
     document.getElementById("resultsModalTitle").textContent = "API Key Status";
-    document.getElementById("results-content").textContent = `Your key is valid until ${data.expiry}`
+    document.getElementById("results-content").textContent = `Your key is valid until ${data.expiry}`;
     //Bootstrap modal function
     resultsModal.show();
 }
