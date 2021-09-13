@@ -9,8 +9,33 @@ document.getElementById("status").addEventListener("click", e => getStatus(e));
 // the button Run Checks, that sends the data to be checked - POST request
 document.getElementById("submit").addEventListener("click", e => postForm(e));
 
+// check the form for the "options" label data - combine the values into one string
+function processOptions(form) {
+    let optArray = [];
+    // each option is currently like: ["options", "es6"] etc. repeated for each option
+    // iterate through the form entries. 
+    // if the first item is "options"
+    // then add the second item (will be e.g. "es6" etc) to the optArray
+    for (let entry of form.entries()) {
+            if(entry[0] === "options") {
+                optArray.push(entry[1]);
+            }
+        }
+    
+    // use delete method of FormData to delete all occurrences of options
+    form.delete("options");
+    // add the new options, using the optArray converted to a string using .join method
+    // join method by default separates the items with a comma so don;t need to specify this
+    form.append("options", optArray.join());
+    // options is now like: ["options", "es6","es8",etc]
+    // return the new form to be used by postForm to POST to API
+    return form;
+}
+
+// POST form data to the API 
 async function postForm(e) {
-    const form = new FormData(document.getElementById("checksform"));
+    // checksform, after passing it through processOptions, and using FormData interface
+    const form = processOptions(new FormData(document.getElementById("checksform")));
 
     // a test to ensure form captured the data. Log to console using entries method
     // for (let entry of form.entries()) {
@@ -38,6 +63,7 @@ async function postForm(e) {
     }
 }
 
+// display the results of the POST request to the API, display them in the Modal
 function displayErrors(data) {
     let heading = `JSHint Results for ${data.file}`;
     let results = "";
