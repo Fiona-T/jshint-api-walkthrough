@@ -59,6 +59,8 @@ async function postForm(e) {
     if(response.ok) {
         displayErrors(data);
     } else {
+        // call the function to display error to user, before the throw as throw stops code
+        displayException(data);
         throw new Error(data.error);
     }
 }
@@ -106,6 +108,8 @@ async function getStatus(e) {
     if (response.ok) {
         displayStatus(data);
     } else {
+        // call the function to display error to user, before the throw as throw stops code
+        displayException(data);
         throw new Error(data.error);
     }
 }
@@ -113,6 +117,20 @@ async function getStatus(e) {
 function displayStatus(data) {
     document.getElementById("resultsModalTitle").textContent = "API Key Status";
     document.getElementById("results-content").textContent = `Your key is valid until ${data.expiry}`;
+    //Bootstrap modal function
+    resultsModal.show();
+}
+
+function displayException(data) {
+    let heading = "An Exception Occurred";
+    // using the error information from the returned data from API, to display to user
+    let results = `<div>The API returned status code ${data.status_code}</div>`;
+    results += `<div>Error number: <strong>${data.error_no}</strong></div>`;
+    results += `<div>Error text: <strong>${data.error}</strong></div>`;
+
+    // add the content to the heading and content sections of modal
+    document.getElementById("resultsModalTitle").textContent = heading;
+    document.getElementById("results-content").innerHTML = results;
     //Bootstrap modal function
     resultsModal.show();
 }
